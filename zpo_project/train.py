@@ -1,13 +1,21 @@
 import pickle
 from pathlib import Path
+import argparse
+import yaml
 
 import lightning.pytorch as pl
 
 from zpo_project.datamodules.metric_learning import MetricLearningDataModule
 from zpo_project.models.model import EmbeddingModel
 
-
 def train():
+    with open('config.yaml', 'r') as file:
+        config = yaml.safe_load(file)
+    token = config['NEPTUNE_API_TOKEN']
+    logger = pl.loggers.NeptuneLogger(
+        project='szymkwiatkowski/zpo-project',
+        api_token=token)
+
     pl.seed_everything(42, workers=True)
 
     # TODO: experiment with data module and model settings
@@ -33,6 +41,7 @@ def train():
     lr_monitor = pl.callbacks.LearningRateMonitor(logging_interval='epoch')
 
     trainer = pl.Trainer(
+        logger=logger,
         callbacks=[model_summary_callback, checkpoint_callback, early_stop_callback, lr_monitor],
         accelerator='gpu',
         max_epochs=1000
@@ -51,4 +60,9 @@ def train():
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        prog='ProgramName',
+        description='What the program does',
+        epilog='Text at the bottom of help')
+    parser.add_argument('-c', '--config', action='store', default='config.yaml')
     train()

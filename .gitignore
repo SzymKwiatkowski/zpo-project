@@ -3,6 +3,16 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Config
+config.yaml
+
+# dataset
+data/train/
+data/test/
+
+# Neptune
+.neptune/
+
 # C extensions
 *.so
 

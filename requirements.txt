@@ -6,3 +6,4 @@ pillow
 albumentations
 numpy
 timm
+neptune
