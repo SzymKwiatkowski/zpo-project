@@ -17,6 +17,7 @@ def train():
         api_token=token)
 
     pl.seed_everything(42, workers=True)
+    max_epochs = 50
 
     # TODO: experiment with data module and model settings
     datamodule = MetricLearningDataModule(
@@ -44,7 +45,7 @@ def train():
         logger=logger,
         callbacks=[model_summary_callback, checkpoint_callback, early_stop_callback, lr_monitor],
         accelerator='gpu',
-        max_epochs=1000
+        max_epochs=max_epochs
     )
 
     trainer.fit(model=model, datamodule=datamodule)
