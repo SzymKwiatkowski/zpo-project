@@ -8,16 +8,18 @@ import lightning.pytorch as pl
 from zpo_project.datamodules.metric_learning import MetricLearningDataModule
 from zpo_project.models.model import EmbeddingModel
 
-def train():
-    with open('config.yaml', 'r') as file:
+def train(args):
+    config_file = args.config
+    max_epochs = args.epochs
+    with open(config_file, 'r') as file:
         config = yaml.safe_load(file)
-    token = config['NEPTUNE_API_TOKEN']
+    token = config['config']['NEPTUNE_API_TOKEN']
+    student_id = config['config']['STUDENT_ID']
     logger = pl.loggers.NeptuneLogger(
         project='szymkwiatkowski/zpo-project',
         api_token=token)
 
     pl.seed_everything(42, workers=True)
-    max_epochs = 50
 
     # TODO: experiment with data module and model settings
     datamodule = MetricLearningDataModule(
@@ -25,13 +27,13 @@ def train():
         number_of_places_per_batch=8,
         number_of_images_per_place=2,
         number_of_batches_per_epoch=100,
-        augment=False,
+        augment=True,
         validation_batch_size=16,
         number_of_workers=2
     )
     model = EmbeddingModel(
         embedding_size=1024,
-        lr=3e-4,
+        lr=10e-4,
         lr_patience=10
     )
 
@@ -66,4 +68,7 @@ if __name__ == '__main__':
         description='What the program does',
         epilog='Text at the bottom of help')
     parser.add_argument('-c', '--config', action='store', default='config.yaml')
-    train()
+    parser.add_argument('-e', '--epochs', action='store', default=50,
+                        type=int, help='Specified number of maximum epochs')
+    args = parser.parse_args()
+    train(args)

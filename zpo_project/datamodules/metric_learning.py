@@ -57,7 +57,7 @@ class MetricLearningDataModule(pl.LightningDataModule):
     def setup(self, stage: Optional[str] = None):
         train_places_dirs = self.get_places_dirs(self._data_path / 'train')
         # TODO: validation dataset size can be changed
-        train_places_dirs, val_places_dirs = train_test_split(train_places_dirs, test_size=0.2, random_state=42)
+        train_places_dirs, val_places_dirs = train_test_split(train_places_dirs, test_size=0.25, random_state=42)
 
         print(f'Number of train places: {len(train_places_dirs)}')
         print(f'Number of val places: {len(val_places_dirs)}')
