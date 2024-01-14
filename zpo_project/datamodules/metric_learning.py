@@ -7,9 +7,11 @@ from lightning import pytorch as pl
 from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader
 
+from zpo_project.datasets.augumentations import Augumentations
 from zpo_project.datasets.evaluation import EvaluationDataset
 from zpo_project.datasets.metric_learning import MetricLearningDataset
 from zpo_project.datasets.prediction import PredictionDataset
+from zpo_project.datasets.transformations import Transformations
 
 
 class MetricLearningDataModule(pl.LightningDataModule):
@@ -24,18 +26,8 @@ class MetricLearningDataModule(pl.LightningDataModule):
         self._validation_batch_size = validation_batch_size
         self._number_of_workers = number_of_workers
 
-        self._transforms = albumentations.Compose([
-            albumentations.CenterCrop(512, 512),
-            albumentations.Normalize(timm.data.IMAGENET_DEFAULT_MEAN, timm.data.IMAGENET_DEFAULT_STD),
-            albumentations.pytorch.transforms.ToTensorV2()
-        ])
-        self._augmentations = albumentations.Compose([
-            albumentations.Rotate(limit=10, p=1.0),
-            albumentations.Affine(scale=(0.9, 1.1), translate_percent=(-0.1, 0.1), p=1.0),
-            albumentations.CenterCrop(512, 512),
-            albumentations.Normalize(timm.data.IMAGENET_DEFAULT_MEAN, timm.data.IMAGENET_DEFAULT_STD),
-            albumentations.pytorch.transforms.ToTensorV2()
-        ]) if augment else self._transforms
+        self._transforms = Transformations.basic_transformation()
+        self._augmentations = Augumentations.basic_augumentation() if augment else self._transforms
 
         self.train_dataset = None
         self.val_dataset = None
