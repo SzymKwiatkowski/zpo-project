@@ -15,6 +15,7 @@ data/test/
 
 # Neptune
 .neptune/
+zpo_project/lightning_logs
 
 # C extensions
 *.so
