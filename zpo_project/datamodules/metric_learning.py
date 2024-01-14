@@ -4,10 +4,10 @@ from typing import Optional
 import albumentations.pytorch
 import timm.data
 from lightning import pytorch as pl
-from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader
 
 from zpo_project.datasets.augumentations import Augumentations
+from zpo_project.datasets.dataset_splits import DatasetSplits
 from zpo_project.datasets.evaluation import EvaluationDataset
 from zpo_project.datasets.metric_learning import MetricLearningDataset
 from zpo_project.datasets.prediction import PredictionDataset
@@ -49,7 +49,7 @@ class MetricLearningDataModule(pl.LightningDataModule):
     def setup(self, stage: Optional[str] = None):
         train_places_dirs = self.get_places_dirs(self._data_path / 'train')
         # TODO: validation dataset size can be changed
-        train_places_dirs, val_places_dirs = train_test_split(train_places_dirs, test_size=0.25, random_state=42)
+        train_places_dirs, val_places_dirs = DatasetSplits.basic_split(train_places_dirs)
 
         print(f'Number of train places: {len(train_places_dirs)}')
         print(f'Number of val places: {len(val_places_dirs)}')
