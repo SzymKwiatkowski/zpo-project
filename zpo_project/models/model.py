@@ -12,27 +12,87 @@ class EmbeddingModel(pl.LightningModule):
                  embedding_size: int,
                  lr: float,
                  lr_patience: int,
-                 miner: str = "multi_similarity",
-                 loss_function: str = "triplet_loss"):
+                 model: str = 'resnet50_model',
+                 miner: str = "triplet_margin_miner",
+                 loss_function: str = "triplet_loss",
+                 distance: str = "euclidean",
+                 distance_p: int = 2,
+                 distance_power: int = 2,
+                 distance_normalize_embedding: bool = True,
+                 distance_is_inverted: bool = False):
         super().__init__()
 
         self.save_hyperparameters()
 
         self.lr = lr
         self.lr_patience = lr_patience
-
-        self.network = BaseModels.basic_model(embedding_size)
+        model = getattr(BaseModels, model)
+        self.network = model(embedding_size)
 
         # TODO: The distance, the miner and the loss function are subject to change
         # TODO: Adding embedding regularization is probably a good idea
-        self.distance = distances.LpDistance(p=2)  # Euclidean distance
+        # Selection of distance function
+        if distance == "euclidean":
+            self.distance = distances.LpDistance(
+                p=distance_p,
+                power=distance_power,
+                normalize_embeddings=distance_normalize_embedding,
+                is_inverted=distance_is_inverted
+            )
+        elif distance == "cosine":
+            self.distance = distances.CosineSimilarity(
+                p=distance_p,
+                power=distance_power,
+                normalize_embeddings=distance_normalize_embedding,
+                is_inverted=distance_is_inverted
+            )
+        elif distance == "dot_product":
+            self.distance = distances.DotProductSimilarity(
+                p=distance_p,
+                power=distance_power,
+                normalize_embeddings=distance_normalize_embedding,
+                is_inverted=distance_is_inverted
+            )
+        elif distance == "snr":
+            self.distance = distances.SNRDistance(
+                p=distance_p,
+                power=distance_power,
+                normalize_embeddings=distance_normalize_embedding,
+                is_inverted=distance_is_inverted
+            )
+        else:
+            self.distance = distances.LpDistance(
+                p=distance_p,
+                power=distance_power,
+                normalize_embeddings=distance_normalize_embedding,
+                is_inverted=distance_is_inverted
+            )  # Euclidean distance
+
+        # Selectio of miner
         if miner == "multi_similarity":
             self.miner = miners.MultiSimilarityMiner(distance=self.distance)
+        elif miner == "triplet_margin_miner":
+            self.miner = miners.TripletMarginMiner(distance=self.distance)
+        elif self.miner == "hdc":
+            self.miner = miners.HDCMiner(distance=self.distance)
+        elif self.miner == "distance_weighted_miner":
+            self.miner = miners.DistanceWeightedMiner(distance=self.distance)
+        elif self.miner == "angular":
+            self.miner = miners.AngularMiner(distance=self.distance)
         else:
             self.miner = miners.MultiSimilarityMiner(distance=self.distance)
 
+        # Selection of loss function
         if loss_function == "triplet_loss":
             self.loss_function = losses.TripletMarginLoss(distance=self.distance)
+        elif loss_function == "tuplet_margin":
+            self.loss_function = losses.TupletMarginLoss(distance=self.distance)
+        elif loss_function == "nca":
+            self.loss_function = losses.NCALoss(distance=self.distance)
+        elif loss_function == "contrastive":
+            self.loss_function = losses.ContrastiveLoss(distance=self.distance)
+        elif loss_function == "pnp":
+            self.loss_function = losses.PNPLoss(distance=self.distance)
         else:
             self.loss_function = losses.TripletMarginLoss(distance=self.distance)
 

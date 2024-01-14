@@ -24,20 +24,27 @@ def train(args):
     # TODO: experiment with data module and model settings
     datamodule = MetricLearningDataModule(
         data_path=Path('data'),
-        number_of_places_per_batch=8,
+        number_of_places_per_batch=12,
         number_of_images_per_place=2,
         number_of_batches_per_epoch=100,
         augment=True,
         validation_batch_size=16,
-        number_of_workers=2,
-        train_size=0.85
+        number_of_workers=4,
+        train_size=0.8,
+        augmentation_selection="flip_augmentation"  # Name of augmentation function from Augmentations class
     )
     model = EmbeddingModel(
-        embedding_size=1024,
-        lr=10e-4,
+        embedding_size=2048,
+        lr=5e-4,
         lr_patience=10,
-        miner="multi_similarity",
-        loss_function="triplet_loss"
+        model="resnet18_model",
+        miner="triplet_margin_miner",
+        loss_function="triplet_loss",
+        distance="euclidean",
+        distance_p=2,
+        distance_power=2,
+        distance_normalize_embedding=True,
+        distance_is_inverted=False
     )
     model.hparams.update(datamodule.hparams)
 

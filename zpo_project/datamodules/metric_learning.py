@@ -4,7 +4,7 @@ from typing import Optional
 from lightning import pytorch as pl
 from torch.utils.data import DataLoader
 
-from zpo_project.datasets.augumentations import Augumentations
+from zpo_project.datasets.augmentations import Augmentations
 from zpo_project.datasets.dataset_splits import DatasetSplits
 from zpo_project.datasets.evaluation import EvaluationDataset
 from zpo_project.datasets.metric_learning import MetricLearningDataset
@@ -15,7 +15,7 @@ from zpo_project.datasets.transformations import Transformations
 class MetricLearningDataModule(pl.LightningDataModule):
     def __init__(self, data_path: Path, number_of_places_per_batch: int, number_of_images_per_place: int,
                  number_of_batches_per_epoch: int, augment: bool, validation_batch_size: int, number_of_workers: int,
-                 train_size: float):
+                 train_size: float, augmentation_selection: str = "basic_augmentation"):
         super().__init__()
 
         self._data_path = Path(data_path)
@@ -29,7 +29,8 @@ class MetricLearningDataModule(pl.LightningDataModule):
         self.save_hyperparameters(ignore=['data_path', 'number_of_workers'])
 
         self._transforms = Transformations.basic_transformation()
-        self._augmentations = Augumentations.basic_augumentation() if augment else self._transforms
+        selected_augmentation = getattr(Augmentations, augmentation_selection)
+        self._augmentations = selected_augmentation() if augment else self._transforms
 
         self.train_dataset = None
         self.val_dataset = None
