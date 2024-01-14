@@ -35,14 +35,14 @@ def train(args):
     )
     model = EmbeddingModel(
         embedding_size=2048,
-        lr=5e-4,
+        lr=7e-4,
         lr_patience=10,
         model="resnet18_model",
         miner="triplet_margin_miner",
         loss_function="triplet_loss",
         distance="euclidean",
         distance_p=2,
-        distance_power=2,
+        distance_power=1,
         distance_normalize_embedding=True,
         distance_is_inverted=False
     )

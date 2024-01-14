@@ -1,8 +1,12 @@
+import argparse
 import requests
+import yaml
 
-
-def main():
-    student_id = 000000  # TODO: put your student id here
+def check(args):
+    config_file = args.config
+    with open(config_file, 'r') as file:
+        config = yaml.safe_load(file)
+    student_id = config['config']['STUDENT_ID']
     distance_name = 'euclidean'  # supported values are: manhattan, euclidean, cosine
     with open('results.pickle', 'rb') as file:
         predictions = file.read()
@@ -17,4 +21,10 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser(
+        prog='ProgramName',
+        description='What the program does',
+        epilog='Text at the bottom of help')
+    parser.add_argument('-c', '--config', action='store', default='config.yaml')
+    args = parser.parse_args()
+    check(args)
