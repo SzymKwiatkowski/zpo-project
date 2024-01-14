@@ -1,4 +1,4 @@
-import albumentations
+import albumentations.pytorch
 import timm
 
 

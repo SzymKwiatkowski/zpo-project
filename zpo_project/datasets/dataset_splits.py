@@ -6,5 +6,5 @@ class DatasetSplits(object):
         self.__init__()
 
     @staticmethod
-    def basic_split(dirs):
-        return train_test_split(dirs, test_size=0.25, random_state=42)
+    def basic_split(dirs, train_size):
+        return train_test_split(dirs, train_size=train_size, random_state=42)

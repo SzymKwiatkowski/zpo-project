@@ -10,8 +10,7 @@ config.yaml
 results.pickle
 
 # dataset
-data/train/
-data/test/
+data/
 
 # Neptune
 .neptune/

@@ -29,13 +29,17 @@ def train(args):
         number_of_batches_per_epoch=100,
         augment=True,
         validation_batch_size=16,
-        number_of_workers=2
+        number_of_workers=2,
+        train_size=0.85
     )
     model = EmbeddingModel(
         embedding_size=1024,
         lr=10e-4,
-        lr_patience=10
+        lr_patience=10,
+        miner="multi_similarity",
+        loss_function="triplet_loss"
     )
+    model.hparams.update(datamodule.hparams)
 
     model_summary_callback = pl.callbacks.ModelSummary(max_depth=-1)
     checkpoint_callback = pl.callbacks.ModelCheckpoint(filename='{epoch}-{val_precision_at_1:.5f}', mode='max',

@@ -1,8 +1,6 @@
 from pathlib import Path
 from typing import Optional
 
-import albumentations.pytorch
-import timm.data
 from lightning import pytorch as pl
 from torch.utils.data import DataLoader
 
@@ -16,7 +14,8 @@ from zpo_project.datasets.transformations import Transformations
 
 class MetricLearningDataModule(pl.LightningDataModule):
     def __init__(self, data_path: Path, number_of_places_per_batch: int, number_of_images_per_place: int,
-                 number_of_batches_per_epoch: int, augment: bool, validation_batch_size: int, number_of_workers: int):
+                 number_of_batches_per_epoch: int, augment: bool, validation_batch_size: int, number_of_workers: int,
+                 train_size: float):
         super().__init__()
 
         self._data_path = Path(data_path)
@@ -25,6 +24,7 @@ class MetricLearningDataModule(pl.LightningDataModule):
         self._number_of_batches_per_epoch = number_of_batches_per_epoch
         self._validation_batch_size = validation_batch_size
         self._number_of_workers = number_of_workers
+        self.train_size = train_size
 
         self._transforms = Transformations.basic_transformation()
         self._augmentations = Augumentations.basic_augumentation() if augment else self._transforms
@@ -49,7 +49,7 @@ class MetricLearningDataModule(pl.LightningDataModule):
     def setup(self, stage: Optional[str] = None):
         train_places_dirs = self.get_places_dirs(self._data_path / 'train')
         # TODO: validation dataset size can be changed
-        train_places_dirs, val_places_dirs = DatasetSplits.basic_split(train_places_dirs)
+        train_places_dirs, val_places_dirs = DatasetSplits.basic_split(train_places_dirs, self.train_size)
 
         print(f'Number of train places: {len(train_places_dirs)}')
         print(f'Number of val places: {len(val_places_dirs)}')
