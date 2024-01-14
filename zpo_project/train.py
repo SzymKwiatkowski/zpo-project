@@ -38,9 +38,9 @@ def train(args):
         lr_patience=10,
         lr_factor=0.2,
         model="resnet18_model",  # name of model
-        miner="triplet_margin_miner",
-        loss_function="triplet_loss",
-        distance="euclidean",
+        miner="multi_similarity",
+        loss_function="circle_loss",
+        distance="cosine",
         distance_p=2,
         distance_power=1,
         distance_normalize_embedding=True,

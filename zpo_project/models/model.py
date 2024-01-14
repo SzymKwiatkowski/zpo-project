@@ -34,7 +34,7 @@ class EmbeddingModel(pl.LightningModule):
         # TODO: The distance, the miner and the loss function are subject to change
         # TODO: Adding embedding regularization is probably a good idea
         # Selection of distance function
-        if distance == "euclidean":
+        if distance == "lp":
             self.distance = distances.LpDistance(
                 p=distance_p,
                 power=distance_power,
@@ -97,6 +97,8 @@ class EmbeddingModel(pl.LightningModule):
             self.loss_function = losses.PNPLoss(distance=self.distance)
         elif loss_function == "angular":
             self.loss_function = losses.AngularLoss(alpha=40, distance=self.distance)
+        elif loss_function == "circle_loss":
+            self.loss_function = losses.CircleLoss(distance=self.distance)
         else:
             self.loss_function = losses.TripletMarginLoss(distance=self.distance)
 

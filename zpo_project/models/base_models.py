@@ -20,3 +20,15 @@ class BaseModels(object):
     @staticmethod
     def resnet18_model(embedding_size):
         return timm.create_model('resnet18.a1_in1k', pretrained=True, num_classes=embedding_size)
+
+    @staticmethod
+    def resnet18_model_v2(embedding_size):
+        return timm.create_model('resnet18.fb_swsl_ig1b_ft_in1k', pretrained=True, num_classes=embedding_size)
+
+    @staticmethod
+    def convnext_small_model(embedding_size):
+        return timm.create_model('convnext_small.fb_in22k', pretrained=True, num_classes=embedding_size)
+
+    @staticmethod
+    def mobilenect_100_model(embedding_size):
+        return timm.create_model('mobilenetv3_large_100.ra_in1k', pretrained=True, num_classes=embedding_size)
