@@ -26,6 +26,8 @@ class MetricLearningDataModule(pl.LightningDataModule):
         self._number_of_workers = number_of_workers
         self.train_size = train_size
 
+        self.save_hyperparameters(ignore=['data_path', 'number_of_workers'])
+
         self._transforms = Transformations.basic_transformation()
         self._augmentations = Augumentations.basic_augumentation() if augment else self._transforms
 
