@@ -1,6 +1,6 @@
 import torch.linalg
 from lightning import pytorch as pl
-from pytorch_metric_learning import miners, losses, distances
+from pytorch_metric_learning import miners, losses, distances, reducers
 from torchmetrics import MetricCollection
 
 from zpo_project.metrics.multi import MultiMetric
@@ -12,6 +12,7 @@ class EmbeddingModel(pl.LightningModule):
                  embedding_size: int,
                  lr: float,
                  lr_patience: int,
+                 lr_factor: float,
                  model: str = 'resnet50_model',
                  miner: str = "triplet_margin_miner",
                  loss_function: str = "triplet_loss",
@@ -25,6 +26,7 @@ class EmbeddingModel(pl.LightningModule):
         self.save_hyperparameters()
 
         self.lr = lr
+        self.lr_factor = lr_factor
         self.lr_patience = lr_patience
         model = getattr(BaseModels, model)
         self.network = model(embedding_size)
@@ -41,10 +43,8 @@ class EmbeddingModel(pl.LightningModule):
             )
         elif distance == "cosine":
             self.distance = distances.CosineSimilarity(
-                p=distance_p,
-                power=distance_power,
-                normalize_embeddings=distance_normalize_embedding,
-                is_inverted=distance_is_inverted
+                # p=distance_p,
+                # power=distance_power
             )
         elif distance == "dot_product":
             self.distance = distances.DotProductSimilarity(
@@ -73,14 +73,16 @@ class EmbeddingModel(pl.LightningModule):
             self.miner = miners.MultiSimilarityMiner(distance=self.distance)
         elif miner == "triplet_margin_miner":
             self.miner = miners.TripletMarginMiner(distance=self.distance)
-        elif self.miner == "hdc":
+        elif miner == "hdc":
             self.miner = miners.HDCMiner(distance=self.distance)
-        elif self.miner == "distance_weighted_miner":
+        elif miner == "distance_weighted_miner":
             self.miner = miners.DistanceWeightedMiner(distance=self.distance)
-        elif self.miner == "angular":
+        elif miner == "angular":
             self.miner = miners.AngularMiner(distance=self.distance)
         else:
             self.miner = miners.MultiSimilarityMiner(distance=self.distance)
+
+        # reducer = reducers.
 
         # Selection of loss function
         if loss_function == "triplet_loss":
@@ -93,6 +95,8 @@ class EmbeddingModel(pl.LightningModule):
             self.loss_function = losses.ContrastiveLoss(distance=self.distance)
         elif loss_function == "pnp":
             self.loss_function = losses.PNPLoss(distance=self.distance)
+        elif loss_function == "angular":
+            self.loss_function = losses.AngularLoss(alpha=40, distance=self.distance)
         else:
             self.loss_function = losses.TripletMarginLoss(distance=self.distance)
 
@@ -139,8 +143,11 @@ class EmbeddingModel(pl.LightningModule):
         self.log_dict(self.val_metrics(preds, targets), sync_dist=True)
 
     def configure_optimizers(self):
-        optimizer = torch.optim.AdamW(self.parameters(), lr=self.lr)
-        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=self.lr_patience)
+        optimizer = torch.optim.AdamW(self.parameters(), lr=self.lr, weight_decay=0.01, amsgrad=True)
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=self.lr_patience,
+                                                               factor=self.lr_factor)
+        # scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.1)  # , patience=self.lr_patience)
+        # scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[15, 70, 100], gamma=0.2)  # , patience=self.lr_patience)
         return {
             'optimizer': optimizer,
             'lr_scheduler': scheduler,

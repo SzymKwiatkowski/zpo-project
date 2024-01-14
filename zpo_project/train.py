@@ -14,7 +14,6 @@ def train(args):
     with open(config_file, 'r') as file:
         config = yaml.safe_load(file)
     token = config['config']['NEPTUNE_API_TOKEN']
-    student_id = config['config']['STUDENT_ID']
     logger = pl.loggers.NeptuneLogger(
         project='szymkwiatkowski/zpo-project',
         api_token=token)
@@ -31,13 +30,14 @@ def train(args):
         validation_batch_size=16,
         number_of_workers=4,
         train_size=0.8,
-        augmentation_selection="flip_augmentation"  # Name of augmentation function from Augmentations class
+        augmentation_selection="complicated_augmentations_with_greyscale"  # Name of augmentation function from Augmentations class
     )
     model = EmbeddingModel(
         embedding_size=2048,
         lr=7e-4,
         lr_patience=10,
-        model="resnet18_model",
+        lr_factor=0.2,
+        model="resnet18_model",  # name of model
         miner="triplet_margin_miner",
         loss_function="triplet_loss",
         distance="euclidean",

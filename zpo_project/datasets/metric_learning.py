@@ -29,12 +29,12 @@ class MetricLearningDataset(Dataset):
         return self._number_of_samples_per_epoch
 
     def __getitem__(self, _: int) -> tuple[torch.Tensor, torch.Tensor]:
-        selected_places_indices = torch.randint(0, len(self._places_images_paths), (self._number_of_places,))
+        selected_places_indices = torch.randperm(len(self._places_images_paths))[:self._number_of_places]
         transformed_images = []
         selected_images_place_ids = []
         for place_index in selected_places_indices:
             place_images = self._places_images_paths[place_index]
-            selected_image_indices = torch.randint(0, len(place_images), (self._number_of_images_per_place,))
+            selected_image_indices = torch.randperm(len(place_images))[:self._number_of_images_per_place]
             selected_images = [np.asarray(Image.open(place_images[image_index]))
                                for image_index in selected_image_indices]
             for image in selected_images:
