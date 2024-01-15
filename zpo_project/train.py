@@ -35,8 +35,8 @@ def train(args):
     model = EmbeddingModel(
         embedding_size=2048,
         lr=7e-4,
-        lr_patience=10,
-        lr_factor=0.2,
+        lr_patience=15,
+        lr_factor=0.4,
         model="resnet18_model",  # name of model
         miner="multi_similarity",
         loss_function="circle_loss",

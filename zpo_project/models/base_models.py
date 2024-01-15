@@ -1,5 +1,5 @@
 import timm
-
+from transformers import AutoFeatureExtractor, ResNetForImageClassification
 
 class BaseModels(object):
     def __init__(self):
@@ -11,7 +11,7 @@ class BaseModels(object):
 
     @staticmethod
     def resnet34_model(embedding_size):
-        return timm.create_model('resnet34', pretrained=True, num_classes=embedding_size)
+        return timm.create_model('resnet34.a1_in1k', pretrained=True, num_classes=embedding_size)
 
     @staticmethod
     def resnet50_model(embedding_size):
@@ -23,7 +23,15 @@ class BaseModels(object):
 
     @staticmethod
     def resnet18_model_v2(embedding_size):
-        return timm.create_model('resnet18.fb_swsl_ig1b_ft_in1k', pretrained=True, num_classes=embedding_size)
+        return timm.create_model('resnet18.tv_in1k', pretrained=True, num_classes=embedding_size)
+
+    @staticmethod
+    def resnet18_model_v3(embedding_size):
+        return timm.create_model('resnet18.gluon_in1k', pretrained=True, num_classes=embedding_size)
+
+    @staticmethod
+    def resnet18_model_feature_extractor(embedding_size):
+        return ResNetForImageClassification.from_pretrained("microsoft/resnet-18")
 
     @staticmethod
     def convnext_small_model(embedding_size):

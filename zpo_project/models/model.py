@@ -70,7 +70,7 @@ class EmbeddingModel(pl.LightningModule):
 
         # Selectio of miner
         if miner == "multi_similarity":
-            self.miner = miners.MultiSimilarityMiner(distance=self.distance)
+            self.miner = miners.MultiSimilarityMiner(epsilon=0.15, distance=self.distance)
         elif miner == "triplet_margin_miner":
             self.miner = miners.TripletMarginMiner(distance=self.distance)
         elif miner == "hdc":
@@ -92,7 +92,7 @@ class EmbeddingModel(pl.LightningModule):
         elif loss_function == "nca":
             self.loss_function = losses.NCALoss(distance=self.distance)
         elif loss_function == "contrastive":
-            self.loss_function = losses.ContrastiveLoss(distance=self.distance)
+            self.loss_function = losses.ContrastiveLoss(pos_margin=0, neg_margin=1, distance=self.distance)
         elif loss_function == "pnp":
             self.loss_function = losses.PNPLoss(distance=self.distance)
         elif loss_function == "angular":
@@ -146,9 +146,9 @@ class EmbeddingModel(pl.LightningModule):
 
     def configure_optimizers(self):
         optimizer = torch.optim.AdamW(self.parameters(), lr=self.lr, weight_decay=0.01, amsgrad=True)
-        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=self.lr_patience,
-                                                               factor=self.lr_factor)
-        # scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.1)  # , patience=self.lr_patience)
+        # scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=self.lr_patience,
+        #                                                        factor=self.lr_factor)
+        scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.934)
         # scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[15, 70, 100], gamma=0.2)  # , patience=self.lr_patience)
         return {
             'optimizer': optimizer,
