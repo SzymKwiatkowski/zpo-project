@@ -14,28 +14,28 @@ def train(args):
     with open(config_file, 'r') as file:
         config = yaml.safe_load(file)
     token = config['config']['NEPTUNE_API_TOKEN']
-    logger = pl.loggers.NeptuneLogger(
-        project='szymkwiatkowski/zpo-project',
-        api_token=token)
+    # logger = pl.loggers.NeptuneLogger(
+    #     project='szymkwiatkowski/zpo-project',
+    #     api_token=token)
 
     pl.seed_everything(42, workers=True)
 
     # TODO: experiment with data module and model settings
     datamodule = MetricLearningDataModule(
         data_path=Path('data'),
-        number_of_places_per_batch=12,
-        number_of_images_per_place=2,
-        number_of_batches_per_epoch=100,
-        augment=True,
+        number_of_places_per_batch=8,  # Do not go above 12, still the higher, the better
+        number_of_images_per_place=3,  # Max 5, Min 2, the higher, the better precision @ 1
+        number_of_batches_per_epoch=100,  # 128 is the best middle ground
+        augment=True,  # Always augment
         validation_batch_size=16,
         number_of_workers=4,
-        train_size=0.8,
+        train_size=0.7,
         augmentation_selection="complicated_augmentations_with_greyscale"  # Name of augmentation function from Augmentations class
     )
     model = EmbeddingModel(
-        embedding_size=2048,
-        lr=7e-4,
-        lr_patience=15,
+        embedding_size=1024,
+        lr=3e-4,
+        lr_patience=10,
         lr_factor=0.4,
         model="resnet18_model",  # name of model
         miner="multi_similarity",
@@ -43,6 +43,11 @@ def train(args):
         distance="cosine",
         distance_p=2,
         distance_power=1,
+        similarity_miner_epsilon=0.15,
+        triplet_miner_margin=0.1,
+        adam_weight_decay=0.01,
+        pos_margin=0,
+        neg_margin=1,
         distance_normalize_embedding=True,
         distance_is_inverted=False
     )
@@ -55,7 +60,7 @@ def train(args):
     lr_monitor = pl.callbacks.LearningRateMonitor(logging_interval='epoch')
 
     trainer = pl.Trainer(
-        logger=logger,
+        #logger=logger,
         callbacks=[model_summary_callback, checkpoint_callback, early_stop_callback, lr_monitor],
         accelerator='gpu',
         max_epochs=max_epochs

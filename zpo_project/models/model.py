@@ -19,6 +19,11 @@ class EmbeddingModel(pl.LightningModule):
                  distance: str = "euclidean",
                  distance_p: int = 2,
                  distance_power: int = 2,
+                 pos_margin: float = 0,
+                 neg_margin: float = 1,
+                 adam_weight_decay: float = 0.01,
+                 similarity_miner_epsilon: float = 0.1,
+                 triplet_miner_margin: float = 0.1,
                  distance_normalize_embedding: bool = True,
                  distance_is_inverted: bool = False):
         super().__init__()
@@ -26,6 +31,7 @@ class EmbeddingModel(pl.LightningModule):
         self.save_hyperparameters()
 
         self.lr = lr
+        self.adam_weight_decay = adam_weight_decay
         self.lr_factor = lr_factor
         self.lr_patience = lr_patience
         model = getattr(BaseModels, model)
@@ -70,11 +76,13 @@ class EmbeddingModel(pl.LightningModule):
 
         # Selectio of miner
         if miner == "multi_similarity":
-            self.miner = miners.MultiSimilarityMiner(epsilon=0.15, distance=self.distance)
+            self.miner = miners.MultiSimilarityMiner(epsilon=similarity_miner_epsilon, distance=self.distance)
         elif miner == "triplet_margin_miner":
-            self.miner = miners.TripletMarginMiner(distance=self.distance)
+            self.miner = miners.TripletMarginMiner(margin=triplet_miner_margin, distance=self.distance)
         elif miner == "hdc":
             self.miner = miners.HDCMiner(distance=self.distance)
+        elif miner == "pair":
+            self.miner = miners.PairMarginMiner(distance=self.distance)
         elif miner == "distance_weighted_miner":
             self.miner = miners.DistanceWeightedMiner(distance=self.distance)
         elif miner == "angular":
@@ -92,13 +100,25 @@ class EmbeddingModel(pl.LightningModule):
         elif loss_function == "nca":
             self.loss_function = losses.NCALoss(distance=self.distance)
         elif loss_function == "contrastive":
-            self.loss_function = losses.ContrastiveLoss(pos_margin=0, neg_margin=1, distance=self.distance)
+            self.loss_function = losses.ContrastiveLoss(pos_margin=pos_margin, neg_margin=neg_margin, distance=self.distance)
         elif loss_function == "pnp":
             self.loss_function = losses.PNPLoss(distance=self.distance)
         elif loss_function == "angular":
             self.loss_function = losses.AngularLoss(alpha=40, distance=self.distance)
         elif loss_function == "circle_loss":
-            self.loss_function = losses.CircleLoss(distance=self.distance)
+            self.loss_function = losses.CircleLoss(m=0.25, gamma=128, distance=self.distance)
+        elif loss_function == "multi_similarity":
+            self.loss_function = losses.MultiSimilarityLoss(alpha=2, beta=50, base=0.5, distance=self.distance)
+        elif loss_function == "multiple_lp":
+            self.loss_function = losses.MultipleLosses(
+                {"triplet": losses.TripletMarginLoss(),
+                 "contrastive": losses.ContrastiveLoss()}
+            )
+        elif loss_function == "multiple_cosine":
+            self.loss_function = losses.MultipleLosses(
+                {"circle_loss": losses.CircleLoss(),
+                 "multi_similarity_loss": losses.MultiSimilarityLoss()}
+            )
         else:
             self.loss_function = losses.TripletMarginLoss(distance=self.distance)
 
@@ -145,10 +165,10 @@ class EmbeddingModel(pl.LightningModule):
         self.log_dict(self.val_metrics(preds, targets), sync_dist=True)
 
     def configure_optimizers(self):
-        optimizer = torch.optim.AdamW(self.parameters(), lr=self.lr, weight_decay=0.01, amsgrad=True)
+        optimizer = torch.optim.AdamW(self.parameters(), lr=self.lr, weight_decay=self.adam_weight_decay, amsgrad=True)
         # scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=self.lr_patience,
         #                                                        factor=self.lr_factor)
-        scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.934)
+        scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.92)
         # scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[15, 70, 100], gamma=0.2)  # , patience=self.lr_patience)
         return {
             'optimizer': optimizer,
