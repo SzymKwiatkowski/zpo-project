@@ -31,7 +31,7 @@ class BaseModels(object):
 
     @staticmethod
     def resnet18_model_feature_extractor(embedding_size):
-        return ResNetForImageClassification.from_pretrained("microsoft/resnet-18")
+        return timm.create_model('efficientnet_b3.ra2_in1k', pretrained=True, num_classes=embedding_size)
 
     @staticmethod
     def conv_next_small_model(embedding_size):
