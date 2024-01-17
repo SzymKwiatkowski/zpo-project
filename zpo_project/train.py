@@ -5,8 +5,8 @@ import yaml
 
 import lightning.pytorch as pl
 
-from zpo_project.datamodules.metric_learning import MetricLearningDataModule
-from zpo_project.models.model import EmbeddingModel
+from datamodules.metric_learning import MetricLearningDataModule
+from models.model import EmbeddingModel
 
 def train(args):
     config_file = args.config
@@ -23,21 +23,21 @@ def train(args):
     # TODO: experiment with data module and model settings
     datamodule = MetricLearningDataModule(
         data_path=Path('data'),
-        number_of_places_per_batch=12,
-        number_of_images_per_place=2,
+        number_of_places_per_batch=32,
+        number_of_images_per_place=5,
         number_of_batches_per_epoch=100,
         augment=True,
-        validation_batch_size=16,
-        number_of_workers=4,
-        train_size=0.8,
+        validation_batch_size=32,
+        number_of_workers=8,
+        train_size=0.7,
         augmentation_selection="complicated_augmentations_with_greyscale"  # Name of augmentation function from Augmentations class
     )
     model = EmbeddingModel(
-        embedding_size=2048,
-        lr=7e-4,
-        lr_patience=15,
+        embedding_size=1024,
+        lr=2e-4,
+        lr_patience=10,
         lr_factor=0.4,
-        model="resnet18_model",  # name of model
+        model='mobilenect_100_model',
         miner="multi_similarity",
         loss_function="circle_loss",
         distance="cosine",

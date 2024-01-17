@@ -11,6 +11,12 @@ results.pickle
 
 # dataset
 data/
+test/
+train/
+
+Dockerfile
+run.sh
+sh_c.sh
 
 # Neptune
 .neptune/

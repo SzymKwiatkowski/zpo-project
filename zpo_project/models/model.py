@@ -3,8 +3,8 @@ from lightning import pytorch as pl
 from pytorch_metric_learning import miners, losses, distances, reducers
 from torchmetrics import MetricCollection
 
-from zpo_project.metrics.multi import MultiMetric
-from zpo_project.models.base_models import BaseModels
+from metrics.multi import MultiMetric
+from models.base_models import BaseModels
 
 
 class EmbeddingModel(pl.LightningModule):
@@ -148,7 +148,7 @@ class EmbeddingModel(pl.LightningModule):
         optimizer = torch.optim.AdamW(self.parameters(), lr=self.lr, weight_decay=0.01, amsgrad=True)
         # scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=self.lr_patience,
         #                                                        factor=self.lr_factor)
-        scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.934)
+        scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.8)
         # scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[15, 70, 100], gamma=0.2)  # , patience=self.lr_patience)
         return {
             'optimizer': optimizer,

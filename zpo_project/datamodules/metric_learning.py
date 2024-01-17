@@ -4,12 +4,12 @@ from typing import Optional
 from lightning import pytorch as pl
 from torch.utils.data import DataLoader
 
-from zpo_project.datasets.augmentations import Augmentations
-from zpo_project.datasets.dataset_splits import DatasetSplits
-from zpo_project.datasets.evaluation import EvaluationDataset
-from zpo_project.datasets.metric_learning import MetricLearningDataset
-from zpo_project.datasets.prediction import PredictionDataset
-from zpo_project.datasets.transformations import Transformations
+from datasets.augmentations import Augmentations
+from datasets.dataset_splits import DatasetSplits
+from datasets.evaluation import EvaluationDataset
+from datasets.metric_learning import MetricLearningDataset
+from datasets.prediction import PredictionDataset
+from datasets.transformations import Transformations
 
 
 class MetricLearningDataModule(pl.LightningDataModule):
