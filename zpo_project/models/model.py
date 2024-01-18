@@ -145,10 +145,11 @@ class EmbeddingModel(pl.LightningModule):
         self.log_dict(self.val_metrics(preds, targets), sync_dist=True)
 
     def configure_optimizers(self):
-        optimizer = torch.optim.AdamW(self.parameters(), lr=self.lr, weight_decay=0.01, amsgrad=True)
+        # optimizer = torch.optim.RMSprop(self.parameters(), lr=self.lr, weight_decay=1e-2, momentum=0.99)
+        optimizer = torch.optim.AdamW(self.parameters(), betas=(0.91, 0.9999), lr=self.lr, weight_decay=0.03, amsgrad=True)
         # scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=self.lr_patience,
         #                                                        factor=self.lr_factor)
-        scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.8)
+        scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.955)
         # scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[15, 70, 100], gamma=0.2)  # , patience=self.lr_patience)
         return {
             'optimizer': optimizer,

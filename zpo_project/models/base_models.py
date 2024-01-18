@@ -17,7 +17,27 @@ class BaseModels(object):
     @staticmethod
     def resnet50_model(embedding_size):
         return timm.create_model('resnet50.a1_in1k', pretrained=True, num_classes=embedding_size)
+    
+    @staticmethod
+    def inception_v3_model(embedding_size):
+        return timm.create_model('inception_v3.gluon_in1k', pretrained=True, num_classes=embedding_size)
+    
+    @staticmethod
+    def xception41p_random_augument_model(embedding_size):
+        return timm.create_model('xception41p.ra3_in1k', pretrained=True, num_classes=embedding_size)
+    
+    @staticmethod
+    def xception65_random_augument_model(embedding_size):
+        return timm.create_model('xception65.ra3_in1k', pretrained=True, num_classes=embedding_size)
 
+    @staticmethod
+    def resnet101_random_augument_model(embedding_size):
+        return timm.create_model('resnet101d.ra2_in1k', pretrained=True, num_classes=embedding_size)
+    
+    @staticmethod
+    def resnet101_a1_recipe_model(embedding_size):
+        return timm.create_model('resnet101.a1h_in1k', pretrained=True, num_classes=embedding_size)
+    
     @staticmethod
     def resnet18_model(embedding_size):
         return timm.create_model('resnet18.a1_in1k', pretrained=True, num_classes=embedding_size)
@@ -29,6 +49,22 @@ class BaseModels(object):
     @staticmethod
     def convnext_v2_base(embedding_size):
         return timm.create_model('convnextv2_base.fcmae', pretrained=True, num_classes=embedding_size)
+    
+    @staticmethod
+    def darknet53(embedding_size):
+        return timm.create_model('darknet53.c2ns_in1k', pretrained=True, num_classes=embedding_size)
+    
+    @staticmethod
+    def ghostnetv2_100(embedding_size):
+        return timm.create_model('ghostnetv2_100.in1k', pretrained=True, num_classes=embedding_size)
+    
+    @staticmethod
+    def mixnet_l(embedding_size):
+        return timm.create_model('mixnet_l.ft_in1k', pretrained=True, num_classes=embedding_size)
+    
+    @staticmethod
+    def fbnetv3_b(embedding_size):
+        return timm.create_model('fbnetv3_b.ra2_in1k', pretrained=True, num_classes=embedding_size)
 
     @staticmethod
     def tf_efficientnetv2_b3(embedding_size):
@@ -43,6 +79,10 @@ class BaseModels(object):
         return timm.create_model('mobilenetv3_large_100.ra_in1k', pretrained=True, num_classes=embedding_size)
 
     @staticmethod
+    def mobilenetv3_rw_model(embedding_size):
+        return timm.create_model('mobilenetv3_rw.rmsp_in1k', pretrained=True, num_classes=embedding_size)
+
+    @staticmethod
     def tf_efficientnet_b1(embedding_size):
         return timm.create_model('tf_efficientnet_b1.aa_in1k', pretrained=True, num_classes=embedding_size)
 
@@ -53,4 +93,10 @@ class BaseModels(object):
     @staticmethod
     def mobile_vit(embedding_size):
         return timm.create_model('mobilevit_s.cvnets_in1k', pretrained=True, num_classes=embedding_size)
-    
+
+    @staticmethod
+    def mixnet(embedding_size):
+        return timm.create_model('mixnet_l', pretrained=True, num_classes=embedding_size)
+    @staticmethod
+    def levit(embedding_size):
+        return timm.create_model('levit_128.fb_dist_in1k', pretrained=True, num_classes=embedding_size)
