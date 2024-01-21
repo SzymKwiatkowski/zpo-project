@@ -2,13 +2,14 @@ import pickle
 from pathlib import Path
 import argparse
 import yaml
-
+import os
 import lightning.pytorch as pl
 
 from datamodules.metric_learning import MetricLearningDataModule
 from models.model import EmbeddingModel
 
 def train(args):
+    os.environ["CUDA_VISIBLE_DEVICES"]="0"
     config_file = args.config
     max_epochs = args.epochs
     with open(config_file, 'r') as file:
@@ -24,23 +25,24 @@ def train(args):
     # TODO: experiment with data module and model settings
     datamodule = MetricLearningDataModule(
         data_path=Path('data'),
-        number_of_places_per_batch=32,
+        number_of_places_per_batch=16,
         number_of_images_per_place=4,
         number_of_batches_per_epoch=100,
         augment=True,
         validation_batch_size=32,
         number_of_workers=8,
         train_size=0.7,
-        augmentation_selection="complicated_augmentations"  # Name of augmentation function from Augmentations class
+        augmentation_selection="basic_augmentation",  # Name of augmentation function from Augmentations class
+        transformations_selection="basic_transformation"
     )
     model = EmbeddingModel(
         embedding_size=1024,
-        lr=2e-4,
-        lr_patience=10,
+        lr=5e-4,
+        lr_patience=5,
         lr_factor=0.5,
-        model='mobilenect_100_model',
+        model='tf_efficientnet_b0',
         miner="multi_similarity",
-        loss_function="circle_loss",
+        loss_function="multiple_losses",
         distance="cosine",
         distance_p=2,
         distance_power=1,
@@ -57,8 +59,10 @@ def train(args):
 
     trainer = pl.Trainer(
         logger=logger,
+        devices=1,
         callbacks=[model_summary_callback, checkpoint_callback, early_stop_callback, lr_monitor],
-        accelerator='gpu',
+        accelerator='cuda',
+        strategy="ddp",
         max_epochs=max_epochs
     )
 

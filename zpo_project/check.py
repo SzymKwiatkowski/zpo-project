@@ -7,6 +7,7 @@ def check(args):
     with open(config_file, 'r') as file:
         config = yaml.safe_load(file)
     student_id = config['config']['STUDENT_ID']
+    print("student Id: ", student_id)
     distance_name = 'cosine'  # supported values are: manhattan, euclidean, cosine
     with open('results.pickle', 'rb') as file:
         predictions = file.read()

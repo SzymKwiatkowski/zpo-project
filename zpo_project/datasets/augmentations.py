@@ -23,6 +23,24 @@ class Augmentations(object):
             albumentations.Affine(scale=(0.9, 1.1), translate_percent=(-0.1, 0.1), p=1.0),
             albumentations.CenterCrop(512, 512),
             albumentations.Flip(),
+            albumentations.HorizontalFlip(p=0.5),
+            albumentations.Normalize(timm.data.IMAGENET_DEFAULT_MEAN, timm.data.IMAGENET_DEFAULT_STD),
+            albumentations.pytorch.transforms.ToTensorV2()
+        ])
+
+    @staticmethod
+    def minimal_augmentation():
+        return albumentations.Compose([
+            # albumentations.Equalize(),
+            albumentations.Rotate(limit=10, p=1.0),
+            albumentations.Affine(scale=(0.9, 1.1), translate_percent=(-0.1, 0.1), p=1.0),
+            albumentations.RandomScale(),
+            albumentations.CenterCrop(512, 512),
+            albumentations.Flip(),
+            albumentations.GaussianBlur(),
+            albumentations.PixelDropout(),
+            albumentations.RandomBrightnessContrast(brightness_limit=0.2, contrast_limit=0.2, p=0.5),
+            albumentations.HorizontalFlip(p=0.5),
             albumentations.Normalize(timm.data.IMAGENET_DEFAULT_MEAN, timm.data.IMAGENET_DEFAULT_STD),
             albumentations.pytorch.transforms.ToTensorV2()
         ])
@@ -30,15 +48,19 @@ class Augmentations(object):
     @staticmethod
     def complicated_augmentations():
         return albumentations.Compose([
-            albumentations.Rotate(limit=10, p=1.0),
-            albumentations.RandomScale(),
+            albumentations.Rotate(limit=15, p=1.0),
+            # albumentations.RandomScale(),
             albumentations.Affine(scale=(0.9, 1.1), translate_percent=(-0.1, 0.1), p=1.0),
             albumentations.CenterCrop(512, 512),
             albumentations.Flip(),
             albumentations.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1, p=0.8),
+            # albumentations.FancyPCA(alpha=0.1, always_apply=False, p=0.5),  
             albumentations.HorizontalFlip(p=0.5),
-            albumentations.FancyPCA(alpha=0.1, always_apply=False, p=0.5),
             albumentations.GaussianBlur(),
+            # albumentations.GaussNoise(),
+            albumentations.augmentations.dropout.grid_dropout.GridDropout(),
+            albumentations.RandomGridShuffle(),
+            albumentations.PixelDropout(),
             albumentations.RandomBrightnessContrast(brightness_limit=0.2, contrast_limit=0.2, p=0.5),
             albumentations.Normalize(timm.data.IMAGENET_DEFAULT_MEAN, timm.data.IMAGENET_DEFAULT_STD),
             albumentations.pytorch.transforms.ToTensorV2()
