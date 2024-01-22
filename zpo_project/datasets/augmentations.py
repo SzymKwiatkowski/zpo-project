@@ -31,16 +31,14 @@ class Augmentations(object):
     @staticmethod
     def minimal_augmentation():
         return albumentations.Compose([
-            # albumentations.Equalize(),
-            albumentations.Rotate(limit=10, p=1.0),
+            albumentations.Rotate(limit=10, p=0.85),
             albumentations.Affine(scale=(0.9, 1.1), translate_percent=(-0.1, 0.1), p=1.0),
             albumentations.RandomScale(),
             albumentations.CenterCrop(512, 512),
-            albumentations.Flip(),
             albumentations.GaussianBlur(),
             albumentations.PixelDropout(),
-            albumentations.RandomBrightnessContrast(brightness_limit=0.2, contrast_limit=0.2, p=0.5),
-            albumentations.HorizontalFlip(p=0.5),
+            albumentations.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1, p=0.2),
+            albumentations.FancyPCA(alpha=0.1, always_apply=False, p=0.5),
             albumentations.Normalize(timm.data.IMAGENET_DEFAULT_MEAN, timm.data.IMAGENET_DEFAULT_STD),
             albumentations.pytorch.transforms.ToTensorV2()
         ])

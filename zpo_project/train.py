@@ -32,7 +32,7 @@ def train(args):
         validation_batch_size=32,
         number_of_workers=8,
         train_size=0.7,
-        augmentation_selection="basic_augmentation",  # Name of augmentation function from Augmentations class
+        augmentation_selection="minimal_augmentation",  # Name of augmentation function from Augmentations class
         transformations_selection="basic_transformation"
     )
     model = EmbeddingModel(
