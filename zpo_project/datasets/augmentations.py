@@ -42,6 +42,18 @@ class Augmentations(object):
             albumentations.Normalize(timm.data.IMAGENET_DEFAULT_MEAN, timm.data.IMAGENET_DEFAULT_STD),
             albumentations.pytorch.transforms.ToTensorV2()
         ])
+    
+    @staticmethod
+    def the_best_augmentation():
+        return albumentations.Compose([
+            albumentations.Affine(scale=(0.9, 1.1), translate_percent=(-0.1, 0.1), p=1.0),
+            albumentations.Rotate(limit=10, p=0.85),
+            albumentations.PixelDropout(),
+            albumentations.FancyPCA(alpha=0.1, always_apply=False, p=0.5),
+            albumentations.CenterCrop(512, 512),
+            albumentations.Normalize(timm.data.IMAGENET_DEFAULT_MEAN, timm.data.IMAGENET_DEFAULT_STD),
+            albumentations.pytorch.transforms.ToTensorV2()
+        ])
 
     @staticmethod
     def complicated_augmentations():
