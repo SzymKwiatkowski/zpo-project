@@ -170,7 +170,9 @@ class EmbeddingModel(pl.LightningModule):
         # scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.3)
         # scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[15, 70, 100], gamma=0.2)  # , patience=self.lr_patience)
         # scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.25)
-        scheduler = torch.optim.lr_scheduler.LinearLR(optimizer, start_factor=0.000001, end_factor=0.05, total_iters=75)
+        scheduler1 = torch.optim.lr_scheduler.LinearLR(optimizer, start_factor=0.00005, end_factor=1.0, total_iters=65)
+        scheduler2 = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.945)
+        scheduler = torch.optim.lr_scheduler.SequentialLR(optimizer, schedulers=[scheduler1, scheduler2], milestones=[85])
         return {
             'optimizer': optimizer,
             'lr_scheduler': scheduler,

@@ -20,24 +20,24 @@ def train(args):
         api_token=token)
 
     pl.seed_everything(42, workers=True)
-    patience = 10
+    patience = 25
 
     # TODO: experiment with data module and model settings
     datamodule = MetricLearningDataModule(
         data_path=Path('data'),
         number_of_places_per_batch=16,
         number_of_images_per_place=4,
-        number_of_batches_per_epoch=100,
+        number_of_batches_per_epoch=128,
         augment=True,
         validation_batch_size=32,
         number_of_workers=8,
         train_size=0.7,
-        augmentation_selection="the_best_augmentation",  # Name of augmentation function from Augmentations class
+        augmentation_selection="minimal_augmentation",  # Name of augmentation function from Augmentations class
         transformations_selection="basic_transformation"
     )
     model = EmbeddingModel(
         embedding_size=1024,
-        lr=5e-4,
+        lr=2.55e-5,
         lr_patience=5,
         lr_factor=0.5,
         model='tf_efficientnet_b0',
