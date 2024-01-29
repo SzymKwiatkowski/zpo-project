@@ -15,7 +15,7 @@ from zpo_project.datasets.transformations import Transformations
 class MetricLearningDataModule(pl.LightningDataModule):
     def __init__(self, data_path: Path, number_of_places_per_batch: int, number_of_images_per_place: int,
                  number_of_batches_per_epoch: int, augment: bool, validation_batch_size: int, number_of_workers: int,
-                 train_size: float, augmentation_selection: str = "basic_augmentation"):
+                 train_size: float, augmentation_selection: str = "basic_augmentation", transformations_selection: str = "basic_transformation"):
         super().__init__()
 
         self._data_path = Path(data_path)
@@ -28,7 +28,9 @@ class MetricLearningDataModule(pl.LightningDataModule):
 
         self.save_hyperparameters(ignore=['data_path', 'number_of_workers'])
 
-        self._transforms = Transformations.basic_transformation()
+        selected_transformation = getattr(Transformations, transformations_selection)
+        self._transforms = selected_transformation()
+        self._predict_transforms = Transformations.basic_transformation()
         selected_augmentation = getattr(Augmentations, augmentation_selection)
         self._augmentations = selected_augmentation() if augment else self._transforms
 
@@ -71,7 +73,7 @@ class MetricLearningDataModule(pl.LightningDataModule):
         )
         self.predict_dataset = PredictionDataset(
             self._data_path / 'test',
-            self._transforms
+            self._predict_transforms
         )
 
     def train_dataloader(self):
